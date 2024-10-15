@@ -11,14 +11,15 @@ import java.util.List;
  */
 public class Players extends Actor
 {
-    protected GreenfootSound bulletSound = new GreenfootSound("bulletSound.mp3"); //Som do tiro
-    protected GreenfootSound explosion = new GreenfootSound("EXPLOOOOSION!.mp3"); //Som da explosão da morte
     protected GreenfootImage[] walkRight = new GreenfootImage[24]; //Vetor de sprites andando pra direita
     protected GreenfootImage[] walkLeft = new GreenfootImage[24]; //Vetor de sprites andando pra esquerda
     protected static List<Actor> checkPoints = new ArrayList<Actor>(); //Lista para salvar os checkPoints
     protected static Actor leader = null; //Decide qual dos jogadores faz o scrolling do mundo
+    protected static Actor nonLeader = null; //Teleporta para a bandeira coletada
     protected boolean atirar=false; //Impede que o player atire enquanto pula ou anda
+    public boolean mode=false; //true == hardmode, false == easymode
     protected boolean turnRight, turnLeft; //Diz para qual lado o personagem esta virado
+    protected static boolean greenVivo=true, redVivo=true; //Caso os 2 sejam false o jogo encerra
     protected int animationCounter=0; //Faz a contagem dos sprites
     protected int speed = 3; //Velocidade do personagem andando
     protected int vSpeed = 0; //Velocidade do personagem caindo
@@ -27,24 +28,67 @@ public class Players extends Actor
     protected int gunReloadTime = 60; //O Tempo que demora para recarregar a arma
     protected int reloadDelayCount = 0; //Contador para recarregar arma
     protected int flagX, flagY; //Inteiros para setar a posição do personagem no respawn
+    protected LifeBar vidas; //vida do personagem
+    protected GameOver fim = new GameOver(); //Tela de fim de jogo
+    private Jbl sound; //Som do tiro
     
+    //CONSTRUTOR DO EASYMODE
+    public Players()
+    {
+        vidas = new LifeBar();
+        sound = new Jbl();
+    }
+    //CONSTRUTOR DO HARDMODE
+    public Players(int chances)
+    {
+        vidas = new LifeBar(chances);
+        sound = new Jbl();
+        mode = true;
+    }
     //ESSE METODO PEGA O CONTATO DO PERSONAGEM COM AS BANDEIRAS E SALVA NA LISTA DE BANDEIRAS
     public void save()
     {
         Actor touched= getOneIntersectingObject(Flag.class);
         if (touched != null)
         {
+            for(int i=0; i<checkPoints.size(); i++)
+            {
+                if(checkPoints.get(i) == touched)return;
+            }
             checkPoints.add(touched);
+            
+            if(nonLeader == null || leader == null)return;
+            flagX = leader.getX();
+            flagY = leader.getY();
+            if(nonLeader.getX() < 0)nonLeader.setLocation(flagX, flagY);
         }
     }
     //METODO QUE IDENTIFICA O CONTATO DO PERSONAGEM COM OS INIMIGOS DO JOGO E O TELEPORTA PARA A ULTIMA BANDEIRA QUE FOI PEGA
     public void death()
     {
+        //Funcionamento especifico para a boss fight
+        if(getWorld().getClass() == LaboratorioSecreto.class)
+        {
+            flagY = 300;
+            if(getX() < 300) flagX = 500;
+            if(getX() >= 300) flagX = 100;
+            
+            
+            if(isTouching(Lobisomem.class))
+            {
+                vidas.damaged();
+                
+                getWorld().addObject(new Explosion(), getX(), getY());
+                setLocation(flagX, flagY);
+                return;
+            }
+        }
+        //Identifica se o personagem sofreu dano e o teleporta pra ultima bandeira
         if( isTouching(SoldadoComFaca.class) || isTouching(Armadilhas.class))
         {
-            explosion.play();
-            World myWorld = getWorld();
-            myWorld.addObject(new Explosion(), getX(), getY());
+            vidas.damaged();
+            
+            getWorld().addObject(new Explosion(), getX(), getY());
             for(int i=0; i<checkPoints.size(); i++)
             {
                 flagX = checkPoints.get(i).getX();
@@ -52,6 +96,30 @@ public class Players extends Actor
             }
             setLocation(flagX, flagY);
         } 
+        //O personagem esta morto e não consegue se mover
+        if(mode == true)
+        {
+            if(vidas.dead() == true)
+            {
+                freeze();
+            }
+        }
+        
+        if(fim.getWorld() != null)return;
+        //Encerra o jogo
+        if(greenVivo == false && redVivo == false)
+        {
+            getWorld().addObject(fim, 300, 200);
+        }
+    }
+    //Retira o personagem do jogo
+    public void freeze()
+    {
+        setLocation(-5000, -100);
+        vSpeed = 0;
+        reloadDelayCount = 100;
+        speed = 0;
+        jumpStrength = 0;
     }
     //METODO QUE FAZ O PERSONAGEM ATIRAR
     public void shootBullet()
@@ -60,14 +128,14 @@ public class Players extends Actor
             Bullet b = new Bullet(6);
             getWorld().addObject(b, getX() + 27, getY() - 10);
             reloadDelayCount = 0;
-            bulletSound.play();
+            sound.bulletSound.play();
         }
         if (reloadDelayCount >= gunReloadTime && turnLeft==true) {
             Bullet b = new Bullet(-6);
             b.getImage().mirrorHorizontally();
             getWorld().addObject(b, getX() - 27, getY() - 10);
             reloadDelayCount = 0; 
-            bulletSound.play();
+            sound.bulletSound.play();
         }
     }
     //METODO QUE FAZ O PERSONAGEM PULAR
@@ -88,6 +156,7 @@ public class Players extends Actor
     {
         if(onGround()){
             vSpeed =0;
+            while(isTouching(Plataforma.class))setLocation(getX(), getY() - 1);
         } 
         else if(!onGround())
         {
@@ -95,7 +164,7 @@ public class Players extends Actor
             vSpeed += gravity;
         }
         
-        while(isTouching(Plataforma.class))setLocation(getX(), getY() - 1);
+        //while(isTouching(Plataforma.class))setLocation(getX(), getY() - 1);
     }
     //METODO PARA SE MOVER PARA DIREITA
     public void moveRight()

@@ -13,6 +13,8 @@ public class Scroller
     private GreenfootImage scrollImage; // A imagem total
     private int scrolledX, scrolledY; // Distâncias totais do rolamento
     private int wide, high; // dimensões da imagem total
+    Cientista cientista; //Objeto cientista para dar true no talk
+    Jbl sound = new Jbl(); //Objeto responsavel pelo controle do som
 
     public Scroller(World viewWorld, GreenfootImage image, int wide, int high)
     {
@@ -59,6 +61,20 @@ public class Scroller
         {
             Actor actor = (Actor) obj;
             actor.setLocation(actor.getX() - dsx, actor.getY() - dsy);
+        }
+    }
+    //Para o mundo quando chega ao cientista
+    public void stopScroll()
+    {
+        int maxX = wide - world.getWidth();        
+        if(scrolledX == maxX)
+        {
+            scroll(0,0);
+            cientista.talk=true;
+        }
+        else
+        {
+            scroll(Players.leader.getX()-world.getWidth()/2, 0);
         }
     }
     //Metodo get para a distância horizontal total que foi rolada
