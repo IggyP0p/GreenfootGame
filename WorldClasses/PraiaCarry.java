@@ -4,9 +4,12 @@ public class PraiaCarry extends World
 {
     public static final int WIDE = 600; //Tamanho horizontal da tela visivel
     public static final int HIGH = 400; //Tamanho vertical da tela visivel
+    MenuBotoes mb;
+    Jbl sound = new Jbl(); //Objeto para acessar os sons
     Scroller scroller; //Ator que faz o rolamento do mundo
     Players p1; //Jogador 1
     Players p2; //Jogador 2
+    
     
     public PraiaCarry()
     {    
@@ -15,14 +18,25 @@ public class PraiaCarry extends World
         int bgWide = bg.getWidth(); //Tamanho horizontal da Imagem de fundo
         int bgHigh = bg.getHeight();//Tamanho vertical da Imagem de fundo
         scroller = new Scroller(this, bg, 8500, 400); //Instanciando a classe do rolamento
-        p1 = new Player1(); //Instanciando player 1
-        p2 = new Player2(); //Instanciando player 2
-        addObject(p2, 170, 300); //Colocando eles no mundo
-        addObject(p1, 110, 300); //Colocando eles no mundo
-     
+        
+        if(mb.hard == true)
+        {
+            p1 = new Player1(3); //Instanciando player 1 hard mode
+            p2 = new Player2(3); //Instanciando player 2 hard mode
+        } else
+        {
+            p1 = new Player1(); //Instanciando player 1 easy mode
+            p2 = new Player2(); //Instanciando player 2 easy mode
+        }
+        
+        //Colocando eles no mundo
+        addObject(p2, 170, 300);
+        addObject(p1, 110, 300);
+    
         //addObject(p2, 2700, 300); //POSIÇÃO DE TESTE
         //addObject(p2, 4700, 300); //POSIÇÃO DE TESTE
         //addObject(p2, 5800, 300); //POSIÇÃO DE TESTE
+        //addObject(p2, 8000, 300); //POSIÇÃO DE TESTE
         
         prepare(); //Metodo que adiciona todos os objetos do mapa
         Players.leader = null;
@@ -34,6 +48,16 @@ public class PraiaCarry extends World
         scroller.scroll(Players.leader.getX()-getWidth()/2, 0); //ponto do mapa onde ocorre o rolamento
     }
     
+    public void started()
+    {
+        sound.praiaST.play();
+    }
+    
+    public void stopped()
+    {
+        sound.praiaST.stop();
+    }
+    
     public void prepare()
     {
         for(int x=0; x<8; x++)
@@ -41,6 +65,7 @@ public class PraiaCarry extends World
             addObject(new Areia1(), x * 80 + 40, 566);
         }
         
+        addObject(new Chain(true), -8, 200);
         
         //COQUEIROS
         addObject(new Coqueiro(), 34, 274);
@@ -117,14 +142,14 @@ public class PraiaCarry extends World
         
         addObject(new MovingAreia(200, 3, 0, false), 3360, 300);
         addObject(new Botao(-90), 3500, 80);
-        addObject(new Chain(), 3500, HIGH/2);
+        addObject(new Chain(false), 3500, HIGH/2);
         
         for(int x=0; x<8; x++)
         {
             addObject(new Areia1(), x * 80 + 4060, 366);
         }
         
-        addObject(new Chain(), 4400, HIGH/2);
+        addObject(new Chain(false), 4400, HIGH/2);
         
         addObject(new Botao(-90), 4600, 250);
         //addObject(new Botao(120), 4500, 210);
