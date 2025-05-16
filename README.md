@@ -10,5 +10,5 @@ Jogo de Xadrez modificado para ter mais peças, um modo campanha e o multiplayer
 ### [https://www.greenfoot.org/scenarios/35137]
 
 
-# Para mais jogos criados por mim no greenfoot acesse o meu perfil:
+# Também acesse o meu perfil no greenfoot, la você encontra todos os jogos e mais informações:
 ### [ https://www.greenfoot.org/users/68943 ]
