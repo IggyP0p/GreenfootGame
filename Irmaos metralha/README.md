@@ -1,9 +1,8 @@
-# Irmaos metralha
-Codigos do jogo "Irmaos Metralha" feito no Greenfoot. O jogo foi criado como trabalho academico e pode ser acessado no link:
-### [ https://www.greenfoot.org/scenarios/33989 ]
+## Actor classes
+Possui os objetos de mundo como persongens, inimigos, objetos de mapa.
 
-## Sinopse
-é um jogo que se passa no ano de 1978, 33 anos após o fim da segunda guerra mundial. Os Estados Unidos com interesse nos estudos dos alemães reuniu diversos cientistas na operação que ficou conhecida como "Paperclip" entre 1945 e 1959, um desses cientistas alemães é um malefico cientista maluco que deseja impor caos ao mundo. Ficando a cargo da União Sovietica com seus agentes secretos treinados dar cabo desse cientista louco!
+## World classes
+Possui os objetos que são as fases do jogo. Então tudo que é referente a posição de personagens, uso de som de fase, timing de algumas coisas você encontra la.
 
-# Para mais jogos criados por mim no greenfoot acesse o meu perfil:
-### [ https://www.greenfoot.org/users/68943 ]
+## Extends Object
+Possui os objetos que não herdam de 'Actor' nem de 'World'. São como objetos coringa como o 'Scroller' que move a tela e o 'Jbl' que cuida do som do jogo.
